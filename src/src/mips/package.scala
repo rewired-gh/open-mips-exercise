@@ -1,13 +1,19 @@
 import chisel3._
 
 package object mips {
+  object Params {
+    final val wordLength = 32
+    final val regReadNum = 2
+  }
+
   object Spec {
-    def zeroWord = 0.U(this.Width.Reg.data.W)
+    def zeroWord = 0.U(Params.wordLength)
 
     object Signal {
       object En {
         def write = true.B
-        def read  = true.B
+
+        def read = true.B
       }
 
       object Valid {
@@ -22,13 +28,13 @@ package object mips {
       }
 
       object Rom {
-        val addr = 32
-        val data = 32
+        val addr = Params.wordLength
+        val data = Params.wordLength
       }
 
       object Reg {
         val addr       = 5
-        val data       = 32
+        val data       = Params.wordLength
         val doubleData = data * 2
       }
     }
@@ -39,10 +45,12 @@ package object mips {
 
     object Op {
       def ori = "b001101".U
+
       def nop = "b000000".U
 
       object Alu {
-        def or  = "b00100101".U
+        def or = "b00100101".U
+
         def nop = "b00000000".U
       }
     }
@@ -56,7 +64,8 @@ package object mips {
     object Sel {
       object Alu {
         def logic = "b001".U
-        def nop   = "b000".U
+
+        def nop = "b000".U
       }
     }
   }

@@ -2,19 +2,19 @@ package mips
 
 import chisel3._
 
-class RfWritePort extends Bundle {
+private class RfWritePort extends Bundle {
   val en   = Input(Bool())
   val addr = Input(UInt(Spec.Width.Reg.addr.W))
   val data = Input(UInt(Spec.Width.Reg.data.W))
 }
 
-class RfReadPort extends Bundle {
+private class RfReadPort extends Bundle {
   val en   = Input(Bool())
   val addr = Input(UInt(Spec.Width.Reg.addr.W))
   val data = Output(RegInit(0.U(Spec.Width.Reg.data.W)))
 }
 
-class RegFile(readNum: Int) extends Module {
+class RegFile(readNum: Int = Params.regReadNum) extends Module {
   val io = IO(new Bundle {
     val writePort = new RfWritePort
     val readPorts = Vec(2, new RfReadPort)
