@@ -1,27 +1,21 @@
 package mips
 
 import chisel3._
-
-private class RfWritePort extends Bundle {
-  val en   = Input(Bool())
-  val addr = Input(UInt(Spec.Width.Reg.addr.W))
-  val data = Input(UInt(Spec.Width.Reg.data.W))
-}
-
-private class RfReadPort extends Bundle {
-  val en   = Input(Bool())
-  val addr = Input(UInt(Spec.Width.Reg.addr.W))
-  val data = Output(RegInit(0.U(Spec.Width.Reg.data.W)))
-}
+import mips.bundles.{RfReadPort, RfWritePort}
 
 class RegFile(readNum: Int = Params.regReadNum) extends Module {
   val io = IO(new Bundle {
     val writePort = new RfWritePort
-    val readPorts = Vec(2, new RfReadPort)
+    val readPorts = Vec(readNum, new RfReadPort)
   })
 
   // 32 bits registers of 32 number
-  private val regs = Vec(Spec.Num.reg, RegInit(Spec.zeroWord))
+  val regs = Vec(Spec.Num.reg, RegInit(Spec.zeroWord))
+  val readPortDataRegs =
+    Vec(readNum, RegInit(0.U(Spec.Width.Reg.data.W)))
+  io.readPorts.map(port => port.data).zip(readPortDataRegs).foreach {
+    case (data, dataReg) => data := dataReg
+  }
 
   // Write Operation
   regs.zipWithIndex.foreach {
@@ -33,19 +27,20 @@ class RegFile(readNum: Int = Params.regReadNum) extends Module {
       )
   }
 
-  io.readPorts.foreach { readPort =>
-    when(readPort.addr === 0.U) {
-      readPort.data := Spec.zeroWord
-    }.elsewhen(readPort.en) {
-      when(
-        io.writePort.en === Spec.Signal.En.write && readPort.addr === io.writePort.addr
-      ) {
-        readPort.data := io.writePort.data
+  io.readPorts.zip(readPortDataRegs).foreach {
+    case (readPort, dataReg) =>
+      when(readPort.addr === 0.U) {
+        dataReg := Spec.zeroWord
+      }.elsewhen(readPort.en) {
+        when(
+          io.writePort.en === Spec.Signal.En.write && readPort.addr === io.writePort.addr
+        ) {
+          dataReg := io.writePort.data
+        }.otherwise {
+          dataReg := regs(readPort.addr)
+        }
       }.otherwise {
-        readPort.data := regs(readPort.addr)
+        dataReg := Spec.zeroWord
       }
-    }.otherwise {
-      readPort.data := Spec.zeroWord
-    }
   }
 }

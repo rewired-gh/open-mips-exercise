@@ -2,12 +2,12 @@ package mips
 
 import chisel3._
 
-private class IfPort extends Bundle {
+class IfPort extends Bundle {
   val pc   = Input(UInt(Spec.Width.Rom.addr.W))
   val inst = Input(UInt(Spec.Width.Rom.data.W))
 }
 
-private class IdPort extends Bundle {
+class IdPort extends Bundle {
   val pc   = Output(RegInit(Spec.zeroWord))
   val inst = Output(RegInit(Spec.zeroWord))
 }
