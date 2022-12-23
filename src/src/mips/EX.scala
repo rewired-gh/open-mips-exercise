@@ -2,12 +2,12 @@ package mips
 
 import chisel3._
 import chisel3.util._
-import mips.bundles.{ExecPort, ExecResultPort}
+import mips.bundles.{ExecPort, WbPort}
 
 class EX extends Module {
   val io = IO(new Bundle {
-    val execPort       = Flipped(new ExecPort)
-    val execResultPort = new ExecResultPort
+    val execPort = Flipped(new ExecPort)
+    val memPort  = Flipped(new WbPort)
   })
 
   val execResultReg = new Bundle {
@@ -15,9 +15,9 @@ class EX extends Module {
     val isWrite     = RegInit(false.B)
     val writeData   = RegInit(Spec.zeroWord)
   }
-  io.execResultPort.destRegAddr := execResultReg.destRegAddr
-  io.execResultPort.destRegAddr := execResultReg.isWrite
-  io.execResultPort.destRegAddr := execResultReg.writeData
+  io.memPort.destRegAddr := execResultReg.destRegAddr
+  io.memPort.destRegAddr := execResultReg.isWrite
+  io.memPort.destRegAddr := execResultReg.writeData
 
   val logicOut = RegInit(Spec.zeroWord)
 

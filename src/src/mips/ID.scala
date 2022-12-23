@@ -9,7 +9,7 @@ class ID(readNum: Int = Params.regReadNum) extends Module {
     val pc               = Input(UInt(Spec.Width.Rom.addr.W))
     val inst             = Input(UInt(Spec.Width.Rom.data.W))
     val regFileReadPorts = Vec(readNum, Flipped(new RfReadPort))
-    val execPort         = new ExecPort
+    val execPort         = Flipped(new ExecPort)
   })
 
   val regFileReadRegs = Vec(
