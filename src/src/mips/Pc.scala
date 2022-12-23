@@ -2,7 +2,7 @@ package mips
 
 import chisel3._
 
-class PC extends Module {
+class Pc extends Module {
   val io = IO(new Bundle {
     val pc = Output(RegInit(0.U(Spec.Width.Rom.addr.W)))
     val ce = Output(RegNext(true.B, false.B))

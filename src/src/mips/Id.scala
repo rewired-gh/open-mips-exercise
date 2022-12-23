@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import mips.bundles.{ExecPort, RfReadPort}
 
-class ID(readNum: Int = Params.regReadNum) extends Module {
+class Id(readNum: Int = Params.regReadNum) extends Module {
   val io = IO(new Bundle {
     val pc               = Input(UInt(Spec.Width.Rom.addr.W))
     val inst             = Input(UInt(Spec.Width.Rom.data.W))
