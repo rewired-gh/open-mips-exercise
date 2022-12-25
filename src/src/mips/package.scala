@@ -4,6 +4,8 @@ package object mips {
   object Params {
     final val wordLength = 32
     final val regReadNum = 2
+    final val romMemFile = "./assets/ori_inst.data"
+    final val romInstNum = 1024
   }
 
   object Spec {
