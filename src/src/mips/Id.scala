@@ -4,6 +4,13 @@ import chisel3._
 import chisel3.util._
 import mips.bundles.{ExecPort, RfReadPort}
 
+import scala.collection.immutable
+
+class RfReadInput extends Bundle {
+  val en   = Bool()
+  val addr = UInt(Spec.Width.Reg.addr.W)
+}
+
 class Id(readNum: Int = Params.regReadNum) extends Module {
   val io = IO(new Bundle {
     val pc               = Input(UInt(Spec.Width.Rom.addr.W))
@@ -12,48 +19,48 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
     val execPort         = Flipped(new ExecPort)
   })
 
-  val regFileReadRegs = Vec(
-    readNum,
-    new Bundle {
-      val en   = RegInit(false.B)
-      val addr = RegInit(Spec.Addr.Reg.nop)
-    }
+  val regFileReadRegs = RegInit(
+    VecInit(
+      Seq.fill(readNum) {
+        val bundle = Wire(new RfReadInput)
+        bundle.en   := false.B
+        bundle.addr := Spec.Addr.Reg.nop
+        bundle
+      }
+    )
   )
   io.regFileReadPorts.zip(regFileReadRegs).foreach {
     case (port, reg) =>
       port.en   := reg.en
       port.addr := reg.addr
   }
+  val op = io.inst(31, 26)
 
-  val execReg = new Bundle {
+  io.execPort.aluOp       := execReg.aluOp
+  io.execPort.aluSel      := execReg.aluSel
+  io.execPort.destRegAddr := execReg.destRegAddr
+  io.execPort.isWrite     := execReg.isWrite
+  val op2       = io.inst(10, 6)
+  val op3       = io.inst(5, 0)
+  val op4       = io.inst(20, 16)
+  val imm       = RegInit(Spec.zeroWord)
+  val instValid = RegInit(!Spec.Signal.Valid.inst)
+
+  private object execReg {
     val aluOp       = RegInit(Spec.Op.Alu.nop)
     val aluSel      = RegInit(Spec.Sel.Alu.nop)
-    val regData     = Vec(readNum, RegInit(Spec.zeroWord))
     val destRegAddr = RegInit(Spec.Addr.Reg.nop)
     val isWrite     = RegInit(false.B)
   }
-  io.execPort.aluOp       := execReg.aluOp
-  io.execPort.aluSel      := execReg.aluSel
-  io.execPort.regData     := execReg.regData
-  io.execPort.destRegAddr := execReg.destRegAddr
-  io.execPort.isWrite     := execReg.isWrite
-
-  val op  = io.inst(31, 26)
-  val op2 = io.inst(10, 6)
-  val op3 = io.inst(5, 0)
-  val op4 = io.inst(20, 16)
-
-  val imm       = RegInit(Spec.zeroWord)
-  val instValid = RegInit(!Spec.Signal.Valid.inst)
 
   // Fallback
   regFileReadRegs.zipWithIndex.foreach {
     case (readReg, index) =>
       readReg.en := false.B
       readReg.addr := MuxLookup(
-        index,
+        index.U,
         Spec.Addr.Reg.nop,
-        Array(
+        immutable.ArraySeq(
           0.U -> io.inst(25, 21),
           1.U -> io.inst(20, 16)
         )
@@ -80,7 +87,7 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
   }
 
   // Determine operands
-  execReg.regData.zipWithIndex.foreach {
+  io.execPort.regData.zipWithIndex.foreach {
     case (data, index) =>
       val readPort = io.regFileReadPorts(index)
       data := Mux(readPort.en, readPort.data, imm)

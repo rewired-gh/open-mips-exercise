@@ -7,15 +7,17 @@ class RegFile(readNum: Int = Params.regReadNum) extends Module {
   val io = IO(new Bundle {
     val writePort = new RfWritePort
     val readPorts = Vec(readNum, new RfReadPort)
+    val debugRegs = Output(Vec(Spec.Num.reg, UInt(Spec.Width.Reg.data.W)))
   })
 
   // 32 bits registers of 32 number
-  val regs = Vec(Spec.Num.reg, RegInit(Spec.zeroWord))
+  val regs = RegInit(VecInit(Seq.fill(Spec.Num.reg)(Spec.zeroWord)))
   val readPortDataRegs =
-    Vec(readNum, RegInit(0.U(Spec.Width.Reg.data.W)))
+    RegInit(VecInit(Seq.fill(readNum)(0.U(Spec.Width.Reg.data.W))))
   io.readPorts.map(port => port.data).zip(readPortDataRegs).foreach {
     case (data, dataReg) => data := dataReg
   }
+  io.debugRegs := regs
 
   // Write Operation
   regs.zipWithIndex.foreach {

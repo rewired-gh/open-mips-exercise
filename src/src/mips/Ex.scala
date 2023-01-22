@@ -6,20 +6,20 @@ import mips.bundles.{ExecPort, RfWritePort}
 
 class Ex extends Module {
   val io = IO(new Bundle {
-    val execPort    = Flipped(new ExecPort)
+    val execPort    = new ExecPort
     val rfWritePort = Flipped(new RfWritePort)
   })
+  val logicOut = Wire(UInt(Spec.Width.Reg.data.W))
 
-  val rfWriteReg = new Bundle {
-    val addr = RegInit(Spec.Addr.Reg.nop)
+  object rfWriteReg {
     val en   = RegInit(false.B)
+    val addr = RegInit(Spec.Addr.Reg.nop)
     val data = RegInit(Spec.zeroWord)
   }
-  io.rfWritePort.addr := rfWriteReg.addr
-  io.rfWritePort.en   := rfWriteReg.en
-  io.rfWritePort.data := rfWriteReg.data
 
-  val logicOut = RegInit(Spec.zeroWord)
+  io.rfWritePort.en   := rfWriteReg.en
+  io.rfWritePort.addr := rfWriteReg.addr
+  io.rfWritePort.data := rfWriteReg.data
 
   // Compute corresponding to the operator
   logicOut := Spec.zeroWord

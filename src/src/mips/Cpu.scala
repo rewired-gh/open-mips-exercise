@@ -1,11 +1,12 @@
 package mips
 
 import chisel3._
-import mips.bundles.RomReadPort
+import mips.bundles.{CpuDebugPort, RomReadPort}
 
 class Cpu(readNum: Int = Params.regReadNum) extends Module {
   val io = IO(new Bundle {
     val romReadPort = Flipped(new RomReadPort)
+    val debugPort   = new CpuDebugPort
   })
 
   val regFile  = Module(new RegFile)
@@ -41,4 +42,8 @@ class Cpu(readNum: Int = Params.regReadNum) extends Module {
 
   // Mem-RegFile (Write back) ports
   regFile.io.writePort := memStage.io.rfWritePort_o
+
+  // Debug port
+  io.debugPort.regFileRegs := regFile.io.debugRegs
+  io.debugPort.pcRegPc     := pcReg.io.pc
 }

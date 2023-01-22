@@ -9,7 +9,7 @@ class Mem extends Module {
     val rfWritePort_o = Flipped(new RfWritePort)
   })
 
-  val wbReg = new Bundle {
+  private object wbReg {
     val addr = RegNext(io.rfWritePort_i.addr, Spec.Addr.Reg.nop)
     val en   = RegNext(io.rfWritePort_i.en, false.B)
     val data = RegNext(io.rfWritePort_i.data, Spec.zeroWord)

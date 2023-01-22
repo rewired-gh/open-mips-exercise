@@ -4,13 +4,18 @@ import chisel3._
 
 class Pc extends Module {
   val io = IO(new Bundle {
-    val pc = Output(RegInit(0.U(Spec.Width.Rom.addr.W)))
-    val ce = Output(RegNext(true.B, false.B))
+    val pc = Output(UInt(Spec.Width.Rom.addr.W))
+    val ce = Output(Bool())
   })
 
-  when(io.ce === false.B) {
-    io.pc := 0.U
+  val pcReg = RegInit(0.U(Spec.Width.Rom.addr.W))
+  io.pc := pcReg
+  val ceReg = RegNext(true.B, false.B)
+  io.ce := ceReg
+
+  when(ceReg === false.B) {
+    pcReg := 0.U
   }.otherwise {
-    io.pc := io.pc + 4.U
+    pcReg := pcReg + 1.U
   }
 }

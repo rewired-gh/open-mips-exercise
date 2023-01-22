@@ -9,7 +9,7 @@ package object mips {
   }
 
   object Spec {
-    def zeroWord = 0.U(Params.wordLength)
+    def zeroWord = 0.U(Params.wordLength.W)
 
     object Signal {
       object En {
@@ -24,6 +24,8 @@ package object mips {
     }
 
     object Width {
+      val inst = 6
+
       object Alu {
         val op  = 8
         val sel = 3
@@ -46,28 +48,28 @@ package object mips {
     }
 
     object Op {
-      def ori = "b001101".U
+      def ori = "b001101".U(Spec.Width.inst.W)
 
-      def nop = "b000000".U
+      def nop = "b000000".U(Spec.Width.inst.W)
 
       object Alu {
-        def or = "b00100101".U
+        def or = "b00100101".U(Spec.Width.Alu.op.W)
 
-        def nop = "b00000000".U
+        def nop = "b00000000".U(Spec.Width.Alu.op.W)
       }
     }
 
     object Addr {
       object Reg {
-        def nop = "b00000".U
+        def nop = "b00000".U(Spec.Width.Reg.addr.W)
       }
     }
 
     object Sel {
       object Alu {
-        def logic = "b001".U
+        def logic = "b001".U(Spec.Width.Alu.sel.W)
 
-        def nop = "b000".U
+        def nop = "b000".U(Spec.Width.Alu.sel.W)
       }
     }
   }
