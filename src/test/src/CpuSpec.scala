@@ -10,12 +10,10 @@ object CpuSpec extends ChiselUtestTester {
       testCircuit(new Cpu, Seq(WriteVcdAnnotation)) { cpu =>
         val insts = Seq(
           "h00000000",
-          "h34011100",
-          "h34210020",
-          "h34214400",
-          "h34210044",
-          "h00000000",
-          "h00000000",
+          "h3c010101",
+          "h34210101",
+          "h34221100",
+          "h00220825",
           "h00000000",
           "h00000000",
           "h00000000",

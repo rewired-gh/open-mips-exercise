@@ -20,7 +20,7 @@ class RegFile(readNum: Int = Params.regReadNum) extends Module {
   regs.zipWithIndex.foreach {
     case (reg, index) =>
       reg := Mux(
-        io.writePort.en === Spec.Signal.En.write && index.U === io.writePort.addr,
+        io.writePort.en === true.B && index.U === io.writePort.addr,
         io.writePort.data,
         reg
       )
@@ -31,7 +31,7 @@ class RegFile(readNum: Int = Params.regReadNum) extends Module {
       readPort.data := Spec.zeroWord
     }.elsewhen(readPort.en) {
       when(
-        io.writePort.en === Spec.Signal.En.write && readPort.addr === io.writePort.addr
+        io.writePort.en === true.B && readPort.addr === io.writePort.addr
       ) {
         readPort.data := io.writePort.data
       }.otherwise {

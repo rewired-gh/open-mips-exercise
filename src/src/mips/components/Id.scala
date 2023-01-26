@@ -56,6 +56,38 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
 
   // Interpret execution
   switch(op) {
+    is(Spec.Op.special) {
+      switch(op2) {
+        is("b00000".U(5.W)) {
+          switch(op3) {
+            is(Spec.Op.or) {
+              io.execPort.isWrite       := true.B
+              io.execPort.aluOp         := Spec.Op.Alu.or
+              io.execPort.aluSel        := Spec.Sel.Alu.logic
+              io.regFileReadPorts(0).en := true.B
+              io.regFileReadPorts(1).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+            }
+            is(Spec.Op.sllv) {
+              io.execPort.isWrite       := true.B
+              io.execPort.aluOp         := Spec.Op.Alu.sll
+              io.execPort.aluSel        := Spec.Sel.Alu.shift
+              io.regFileReadPorts(0).en := true.B
+              io.regFileReadPorts(1).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+            }
+            is(Spec.Op.srav) {
+              io.execPort.isWrite       := true.B
+              io.execPort.aluOp         := Spec.Op.Alu.sra
+              io.execPort.aluSel        := Spec.Sel.Alu.shift
+              io.regFileReadPorts(0).en := true.B
+              io.regFileReadPorts(1).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+            }
+          }
+        }
+      }
+    }
     is(Spec.Op.ori) {
       io.execPort.isWrite       := true.B
       io.execPort.aluOp         := Spec.Op.Alu.or
@@ -63,7 +95,29 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
       io.regFileReadPorts(0).en := true.B
       imm                       := io.idInstPort.inst(15, 0)
       io.execPort.destRegAddr   := io.idInstPort.inst(20, 16)
-      instValid                 := true.B
+      instValid                 := Spec.Signal.Valid.inst
+    }
+    is(Spec.Op.lui) {
+      io.execPort.isWrite       := true.B
+      io.execPort.aluOp         := Spec.Op.Alu.or
+      io.execPort.aluSel        := Spec.Sel.Alu.logic
+      io.regFileReadPorts(0).en := true.B
+      imm                       := Cat(io.idInstPort.inst(15, 0), 0.U(16.W))
+      io.execPort.destRegAddr   := io.idInstPort.inst(20, 16)
+      instValid                 := Spec.Signal.Valid.inst
+    }
+  }
+  when(io.idInstPort.inst(31, 21) === 0.U(11.W)) {
+    switch(op3) {
+      is(Spec.Op.sll) {
+        io.execPort.isWrite       := true.B
+        io.execPort.aluOp         := Spec.Op.Alu.sll
+        io.execPort.aluSel        := Spec.Sel.Alu.shift
+        io.regFileReadPorts(1).en := true.B
+        imm                       := io.idInstPort.inst(10, 6)
+        io.execPort.destRegAddr   := io.idInstPort.inst(15, 11)
+        instValid                 := Spec.Signal.Valid.inst
+      }
     }
   }
 

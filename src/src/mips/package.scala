@@ -12,12 +12,6 @@ package object mips {
     def zeroWord = 0.U(Params.wordLength.W)
 
     object Signal {
-      object En {
-        def write = true.B
-
-        def read = true.B
-      }
-
       object Valid {
         def inst = false.B
       }
@@ -48,12 +42,48 @@ package object mips {
     }
 
     object Op {
+      def and = "b100100".U(Spec.Width.inst.W)
+
+      def or = "b100101".U(Spec.Width.inst.W)
+
+      def xor = "b100110".U(Spec.Width.inst.W)
+
+      def nor = "b100111".U(Spec.Width.inst.W)
+
+      def andi = "b001100".U(Spec.Width.inst.W)
+
       def ori = "b001101".U(Spec.Width.inst.W)
+
+      def xori = "b001110".U(Spec.Width.inst.W)
+
+      def lui = "b001111".U(Spec.Width.inst.W)
+
+      def sll = "b000000".U(Spec.Width.inst.W)
+
+      def sllv = "b000100".U(Spec.Width.inst.W)
+
+      def srl = "b000010".U(Spec.Width.inst.W)
+
+      def srlv = "b000110".U(Spec.Width.inst.W)
+
+      def sra = "b000011".U(Spec.Width.inst.W)
+
+      def srav = "b000111".U(Spec.Width.inst.W)
+
+      def sync = "b001111".U(Spec.Width.inst.W)
+
+      def pref = "b110011".U(Spec.Width.inst.W)
+
+      def special = "b000000".U(Spec.Width.inst.W)
 
       def nop = "b000000".U(Spec.Width.inst.W)
 
       object Alu {
         def or = "b00100101".U(Spec.Width.Alu.op.W)
+
+        def sll = "b01111100".U(Spec.Width.Alu.op.W)
+
+        def sra = "b00000011".U(Spec.Width.Alu.op.W)
 
         def nop = "b00000000".U(Spec.Width.Alu.op.W)
       }
@@ -68,6 +98,8 @@ package object mips {
     object Sel {
       object Alu {
         def logic = "b001".U(Spec.Width.Alu.sel.W)
+
+        def shift = "b010".U(Spec.Width.Alu.sel.W)
 
         def nop = "b000".U(Spec.Width.Alu.sel.W)
       }
