@@ -11,9 +11,9 @@ object CpuSpec extends ChiselUtestTester {
         val insts = Seq(
           "h00000000",
           "h34011100",
-          "h34020020",
-          "h3403ff00",
-          "h3404ffff",
+          "h34210020",
+          "h34214400",
+          "h34210044",
           "h00000000",
           "h00000000",
           "h00000000",
@@ -34,9 +34,9 @@ object CpuSpec extends ChiselUtestTester {
           }
           println()
           val debugInfo = cpu.io.debugPort.peek()
-          cpu.clock.step()
           cpu.io.romReadPort.data
             .poke(insts(cpu.io.debugPort.pcRegPc.peekInt().toInt).U)
+          cpu.clock.step()
         }
       }
     }
