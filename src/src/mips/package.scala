@@ -76,6 +76,12 @@ package object mips {
 
       def special = "b000000".U(Spec.Width.inst.W)
 
+      def movz = "b001010".U(Spec.Width.inst.W)
+
+      def mfhi = "b010000".U(Spec.Width.inst.W)
+
+      def mthi = "b010001".U(Spec.Width.inst.W)
+
       def nop = "b000000".U(Spec.Width.inst.W)
 
       object Alu {
@@ -84,6 +90,12 @@ package object mips {
         def sll = "b01111100".U(Spec.Width.Alu.op.W)
 
         def sra = "b00000011".U(Spec.Width.Alu.op.W)
+
+        def mfhi = "b00010000".U(Spec.Width.Alu.op.W)
+
+        def mthi = "b00010001".U(Spec.Width.Alu.op.W)
+
+        def movz = "b00001010".U(Spec.Width.Alu.op.W)
 
         def nop = "b00000000".U(Spec.Width.Alu.op.W)
       }
@@ -100,6 +112,8 @@ package object mips {
         def logic = "b001".U(Spec.Width.Alu.sel.W)
 
         def shift = "b010".U(Spec.Width.Alu.sel.W)
+
+        def move = "b011".U(Spec.Width.Alu.sel.W)
 
         def nop = "b000".U(Spec.Width.Alu.sel.W)
       }

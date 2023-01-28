@@ -7,11 +7,6 @@ import mips.bundles.{ExNdPort, IdInstNdPort, RfReadPort, RfWriteNdPort}
 
 import scala.collection.immutable
 
-class RfReadInput extends Bundle {
-  val en   = Bool()
-  val addr = UInt(Spec.Width.Reg.addr.W)
-}
-
 class Id(readNum: Int = Params.regReadNum) extends Module {
   val io = IO(new Bundle {
     val idInstPort             = Input(new IdInstNdPort)
@@ -83,6 +78,28 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
               io.regFileReadPorts(0).en := true.B
               io.regFileReadPorts(1).en := true.B
               instValid                 := Spec.Signal.Valid.inst
+            }
+            is(Spec.Op.mfhi) {
+              io.execPort.isWrite := true.B
+              io.execPort.aluOp   := Spec.Op.Alu.mfhi
+              io.execPort.aluSel  := Spec.Sel.Alu.move
+              instValid           := Spec.Signal.Valid.inst
+            }
+            is(Spec.Op.mthi) {
+              io.execPort.isWrite       := false.B
+              io.execPort.aluOp         := Spec.Op.Alu.mthi
+              io.regFileReadPorts(0).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+            }
+            is(Spec.Op.movz) {
+              io.execPort.aluOp         := Spec.Op.Alu.movz
+              io.execPort.aluSel        := Spec.Sel.Alu.move
+              io.regFileReadPorts(0).en := true.B
+              io.regFileReadPorts(1).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+              io.execPort.isWrite := io
+                .regFileReadPorts(1)
+                .data === Spec.zeroWord
             }
           }
         }

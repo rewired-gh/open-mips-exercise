@@ -10,18 +10,16 @@ object CpuSpec extends ChiselUtestTester {
       testCircuit(new Cpu, Seq(WriteVcdAnnotation)) { cpu =>
         val insts = Seq(
           "h00000000",
-          "h3c010101",
-          "h34210101",
-          "h34221100",
-          "h00220825",
-          "h3c020404",
-          "h34420404",
-          "h34050005",
-          "h34080008",
-          "h00021200",
-          "h00e21004",
-          "h00021403",
-          "h01021007",
+          "h3c010000",
+          "h3c02ffff",
+          "h3c030505",
+          "h3c040000",
+          "h0041200a",
+          "h0043200a",
+          "h00000011",
+          "h00400011",
+          "h00600011",
+          "h00002010",
           "h00000000",
           "h00000000",
           "h00000000",
@@ -38,6 +36,9 @@ object CpuSpec extends ChiselUtestTester {
             case (reg, index) =>
               print(s"$$${index}_${reg.peekInt().toString(16)} ")
           }
+          print(
+            s"hi_${cpu.io.debugPort.hiReg.peekInt().toString(16)} lo_${cpu.io.debugPort.loReg.peekInt().toString(16)}"
+          )
           println()
           val debugInfo = cpu.io.debugPort.peek()
           cpu.io.romReadPort.data
