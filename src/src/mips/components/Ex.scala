@@ -24,6 +24,9 @@ class Ex extends Module {
   val shiftOut = Wire(UInt(Spec.Width.Reg.data.W))
   val moveOut  = Wire(UInt(Spec.Width.Reg.data.W))
 
+  // Fallback
+  io.isStallRequest := false.B
+
   // Determine Hi-Lo registers value
   val hi = Wire(UInt(Spec.Width.Reg.data.W))
   val lo = Wire(UInt(Spec.Width.Reg.data.W))

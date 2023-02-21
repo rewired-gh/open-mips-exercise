@@ -2,15 +2,14 @@ package mips.bridges
 
 import chisel3._
 
+import scala.reflect.ClassTag
+
 abstract class BridgeModule[PortT <: Bundle] extends Module {
   val io = IO(new Bundle {
-    val input   = Input(new PortT)
-    val output  = Output(new PortT)
+    val input   = Input(bundleFactory)
+    val output  = Output(bundleFactory)
     val isStall = Input(Bool())
   })
-
-  val defaultValue: Bundle
-
   val bridgeReg = RegNext(
     Mux(
       io.isStall,
@@ -19,6 +18,10 @@ abstract class BridgeModule[PortT <: Bundle] extends Module {
     ),
     defaultValue
   )
+
+  def defaultValue: PortT
+
+  def bundleFactory: PortT
 
   io.output := bridgeReg
 }

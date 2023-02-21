@@ -47,8 +47,9 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
   io.execPort.regData.foreach { data =>
     data := Spec.zeroWord
   }
-  instValid := !Spec.Signal.Valid.inst
-  imm       := Spec.zeroWord
+  instValid         := !Spec.Signal.Valid.inst
+  imm               := Spec.zeroWord
+  io.isStallRequest := false.B
 
   // Interpret execution
   switch(op) {

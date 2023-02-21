@@ -8,11 +8,13 @@ import mips.bundles.ExNdPort
 import mips.Params.regReadNum
 
 class IdToEx(readNum: Int = regReadNum) extends BridgeModule[ExNdPort] {
-  val defaultValue = (new ExNdPort).Lit(
+  def defaultValue = (new ExNdPort).Lit(
     _.aluOp -> Spec.Op.Alu.nop,
     _.aluSel -> Spec.Sel.Alu.nop,
     _.regData -> Vec.Lit(Spec.zeroWord, Spec.zeroWord),
     _.destRegAddr -> Spec.Addr.Reg.nop,
     _.isWrite -> false.B
   )
+
+  def bundleFactory = new ExNdPort
 }
