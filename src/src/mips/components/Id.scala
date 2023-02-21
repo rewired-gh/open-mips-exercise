@@ -14,6 +14,7 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
     val execPort               = Output(new ExNdPort)
     val exRfWriteFeedbackPort  = Input(new RfWriteNdPort)
     val memRfWriteFeedbackPort = Input(new RfWriteNdPort)
+    val isStallRequest         = Output(Bool())
   })
 
   val op        = io.idInstPort.inst(31, 26)

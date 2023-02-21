@@ -3,7 +3,7 @@ package mips
 import chisel3._
 import mips.bridges.{ExToMem, IdToEx, IfToId, MemToWb}
 import mips.bundles.{CpuDebugPort, RomReadPort}
-import mips.components.{Ex, HiLoReg, Id, Pc, RegFile}
+import mips.components.{Ctrl, Ex, HiLoReg, Id, Pc, RegFile}
 
 class Cpu(readNum: Int = Params.regReadNum) extends Module {
   val io = IO(new Bundle {
@@ -14,6 +14,8 @@ class Cpu(readNum: Int = Params.regReadNum) extends Module {
   val regFile = Module(new RegFile)
   val hiLoReg = Module(new HiLoReg)
   val pcReg   = Module(new Pc)
+
+  val ctrl = Module(new Ctrl)
 
   val idStage  = Module(new Id)
   val exStage  = Module(new Ex)
@@ -71,6 +73,16 @@ class Cpu(readNum: Int = Params.regReadNum) extends Module {
 
   regFile.io.writePort := memToWb.io.output.rfWritePort
   hiLoReg.io.writePort := memToWb.io.output.hiLoWritePort
+
+  // Stall mechanism
+  pcReg.io.isStall   := ctrl.io.stallCommandPort.pc
+  ifToId.io.isStall  := ctrl.io.stallCommandPort.ifToId
+  idToEx.io.isStall  := ctrl.io.stallCommandPort.idToEx
+  exToMem.io.isStall := ctrl.io.stallCommandPort.exToMem
+  memToWb.io.isStall := ctrl.io.stallCommandPort.memToWb
+
+  ctrl.io.stallRequestPort.id := idStage.io.isStallRequest
+  ctrl.io.stallRequestPort.ex := exStage.io.isStallRequest
 
   // Debug port
   io.debugPort.regFileRegs := regFile.io.debugRegs

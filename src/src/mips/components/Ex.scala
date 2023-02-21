@@ -18,6 +18,7 @@ class Ex extends Module {
     val hiLoReadPort             = Input(new HiLoReadNdPort)
     val memHiLoWriteFeedbackPort = Input(new HiLoWriteNdPort)
     val wbHiLoWriteFeedbackPort  = Input(new HiLoWriteNdPort)
+    val isStallRequest           = Output(Bool())
   })
   val logicOut = Wire(UInt(Spec.Width.Reg.data.W))
   val shiftOut = Wire(UInt(Spec.Width.Reg.data.W))

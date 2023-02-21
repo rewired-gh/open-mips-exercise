@@ -5,8 +5,9 @@ import mips.Spec
 
 class Pc extends Module {
   val io = IO(new Bundle {
-    val pc = Output(UInt(Spec.Width.Rom.addr.W))
-    val ce = Output(Bool())
+    val pc      = Output(UInt(Spec.Width.Rom.addr.W))
+    val ce      = Output(Bool())
+    val isStall = Input(Bool())
   })
 
   val pcReg = RegInit(Spec.zeroWord)
@@ -17,6 +18,8 @@ class Pc extends Module {
 
   when(ceReg === false.B) {
     pcReg := 0.U
+  }.elsewhen(io.isStall) {
+    pcReg := pcReg
   }.otherwise {
     pcReg := pcReg + 1.U
   }
