@@ -1,0 +1,22 @@
+[
+  {
+    "class": "firrtl.transforms.DedupedResult",
+    "original": "~Cpu|ExToMem",
+    "duplicate": "~Cpu|Cpu/exToMem:ExToMem",
+    "index": 0.8181818181818182
+  },
+  {
+    "class": "firrtl.transforms.DedupedResult",
+    "original": "~Cpu|MemToWb",
+    "duplicate": "~Cpu|Cpu/memToWb:ExToMem",
+    "index": 0.9090909090909091
+  },
+  {
+    "class": "firrtl.EmitCircuitAnnotation",
+    "emitter": "firrtl.VerilogEmitter"
+  },
+  {
+    "class": "firrtl.transforms.BlackBoxTargetDirAnno",
+    "targetDir": "."
+  }
+]

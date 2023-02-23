@@ -84,6 +84,22 @@ package object mips {
 
       def nop = "b000000".U(Spec.Width.inst.W)
 
+      def slt = "b101010".U(Spec.Width.inst.W)
+
+      def sltu = "b101011".U(Spec.Width.inst.W)
+
+      def slti = "b001010".U(Spec.Width.inst.W)
+
+      def sltiu = "b001011".U(Spec.Width.inst.W)
+
+      def add = "b100000".U(Spec.Width.inst.W)
+
+      def addu = "b100001".U(Spec.Width.inst.W)
+
+      def addi = "b001000".U(Spec.Width.inst.W)
+
+      def addiu = "b001001".U(Spec.Width.inst.W)
+
       object Alu {
         def or = "b00100101".U(Spec.Width.Alu.op.W)
 
@@ -98,6 +114,14 @@ package object mips {
         def movz = "b00001010".U(Spec.Width.Alu.op.W)
 
         def nop = "b00000000".U(Spec.Width.Alu.op.W)
+
+        def slt = "b00101010".U(Spec.Width.Alu.op.W)
+
+        def sltu = "b00101011".U(Spec.Width.Alu.op.W)
+
+        def add: UInt = "b00100000".U(Spec.Width.Alu.op.W)
+
+        def addu: UInt = "b00100001".U(Spec.Width.Alu.op.W)
       }
     }
 
@@ -116,6 +140,8 @@ package object mips {
         def move = "b011".U(Spec.Width.Alu.sel.W)
 
         def nop = "b000".U(Spec.Width.Alu.sel.W)
+
+        def arithmetic = "b100".U(Spec.Width.Alu.sel.W)
       }
     }
   }

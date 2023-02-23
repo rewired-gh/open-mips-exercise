@@ -20,12 +20,16 @@ class Ex extends Module {
     val wbHiLoWriteFeedbackPort  = Input(new HiLoWriteNdPort)
     val isStallRequest           = Output(Bool())
   })
-  val logicOut = Wire(UInt(Spec.Width.Reg.data.W))
-  val shiftOut = Wire(UInt(Spec.Width.Reg.data.W))
-  val moveOut  = Wire(UInt(Spec.Width.Reg.data.W))
+  val logicOut      = Wire(UInt(Spec.Width.Reg.data.W))
+  val shiftOut      = Wire(UInt(Spec.Width.Reg.data.W))
+  val moveOut       = Wire(UInt(Spec.Width.Reg.data.W))
+  val arithmeticOut = Wire(UInt(Spec.Width.Reg.data.W))
+
+  val isSumOverflow = Wire(Bool())
 
   // Fallback
   io.isStallRequest := false.B
+  isSumOverflow     := false.B
 
   // Determine Hi-Lo registers value
   val hi = Wire(UInt(Spec.Width.Reg.data.W))
@@ -42,9 +46,10 @@ class Ex extends Module {
   }
 
   // Compute corresponding to the operator
-  logicOut := Spec.zeroWord
-  shiftOut := Spec.zeroWord
-  moveOut  := Spec.zeroWord
+  logicOut      := Spec.zeroWord
+  shiftOut      := Spec.zeroWord
+  moveOut       := Spec.zeroWord
+  arithmeticOut := Spec.zeroWord
   switch(io.execPort.aluOp) {
     // Logic result
     is(Spec.Op.Alu.or) {
@@ -70,10 +75,38 @@ class Ex extends Module {
       moveOut := io.execPort.regData(0)
     }
   }
+  switch(io.execPort.aluOp) {
+    // Arithmetic result
+    is(Spec.Op.Alu.slt) {
+      arithmeticOut := io.execPort.regData(0).asSInt <
+        io.execPort.regData(1).asSInt
+    }
+    is(Spec.Op.Alu.sltu) {
+      arithmeticOut := io.execPort.regData(0) < io.execPort.regData(1)
+    }
+    is(Spec.Op.Alu.addu) {
+      arithmeticOut := io.execPort.regData.reduce((acc, p) => acc + p)
+    }
+    is(Spec.Op.Alu.add) {
+      arithmeticOut := io.execPort.regData
+        .map(p => p.asSInt)
+        .reduce((acc, p) => acc + p)
+        .asUInt
+      isSumOverflow := (io.execPort.regData(0).asSInt > 0.S &&
+      io.execPort.regData(1).asSInt > 0.S &&
+      arithmeticOut.asSInt < 0.S) || (io.execPort.regData(0).asSInt < 0.S &&
+      io.execPort.regData(1).asSInt < 0.S &&
+      arithmeticOut.asSInt > 0.S)
+    }
+  }
 
   // Select a computation result
   io.regWritePort.rfWritePort.addr := io.execPort.destRegAddr
-  io.regWritePort.rfWritePort.en   := io.execPort.isWrite
+  io.regWritePort.rfWritePort.en := Mux(
+    isSumOverflow,
+    false.B,
+    io.execPort.isWrite
+  )
   io.regWritePort.rfWritePort.data := Spec.zeroWord
   switch(io.execPort.aluSel) {
     is(Spec.Sel.Alu.logic) {
@@ -84,6 +117,9 @@ class Ex extends Module {
     }
     is(Spec.Sel.Alu.move) {
       io.regWritePort.rfWritePort.data := moveOut
+    }
+    is(Spec.Sel.Alu.arithmetic) {
+      io.regWritePort.rfWritePort.data := arithmeticOut
     }
   }
 

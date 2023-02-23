@@ -22,10 +22,8 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
   val op3       = io.idInstPort.inst(5, 0)
   val op4       = io.idInstPort.inst(20, 16)
   val imm       = Wire(UInt(Spec.Width.Reg.data.W))
+  val immSigned = Wire(SInt(Spec.Width.Reg.data.W))
   val instValid = Wire(Bool())
-
-  imm       := Spec.zeroWord
-  instValid := !Spec.Signal.Valid.inst
 
   // Fallback
   io.regFileReadPorts.zipWithIndex.foreach {
@@ -49,6 +47,7 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
   }
   instValid         := !Spec.Signal.Valid.inst
   imm               := Spec.zeroWord
+  immSigned         := Spec.zeroWord.asSInt
   io.isStallRequest := false.B
 
   // Interpret execution
@@ -103,6 +102,38 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
                 .regFileReadPorts(1)
                 .data === Spec.zeroWord
             }
+            is(Spec.Op.slt) {
+              io.execPort.isWrite       := true.B
+              io.execPort.aluOp         := Spec.Op.Alu.slt
+              io.execPort.aluSel        := Spec.Sel.Alu.arithmetic
+              io.regFileReadPorts(0).en := true.B
+              io.regFileReadPorts(1).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+            }
+            is(Spec.Op.sltu) {
+              io.execPort.isWrite       := true.B
+              io.execPort.aluOp         := Spec.Op.Alu.sltu
+              io.execPort.aluSel        := Spec.Sel.Alu.arithmetic
+              io.regFileReadPorts(0).en := true.B
+              io.regFileReadPorts(1).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+            }
+            is(Spec.Op.add) {
+              io.execPort.isWrite       := true.B
+              io.execPort.aluOp         := Spec.Op.Alu.add
+              io.execPort.aluSel        := Spec.Sel.Alu.arithmetic
+              io.regFileReadPorts(0).en := true.B
+              io.regFileReadPorts(1).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+            }
+            is(Spec.Op.addu) {
+              io.execPort.isWrite       := true.B
+              io.execPort.aluOp         := Spec.Op.Alu.addu
+              io.execPort.aluSel        := Spec.Sel.Alu.arithmetic
+              io.regFileReadPorts(0).en := true.B
+              io.regFileReadPorts(1).en := true.B
+              instValid                 := Spec.Signal.Valid.inst
+            }
           }
         }
       }
@@ -122,6 +153,16 @@ class Id(readNum: Int = Params.regReadNum) extends Module {
       io.execPort.aluSel        := Spec.Sel.Alu.logic
       io.regFileReadPorts(0).en := true.B
       imm                       := Cat(io.idInstPort.inst(15, 0), 0.U(16.W))
+      io.execPort.destRegAddr   := io.idInstPort.inst(20, 16)
+      instValid                 := Spec.Signal.Valid.inst
+    }
+    is(Spec.Op.slti) {
+      io.execPort.isWrite       := true.B
+      io.execPort.aluOp         := Spec.Op.Alu.slt
+      io.execPort.aluSel        := Spec.Sel.Alu.arithmetic
+      io.regFileReadPorts(0).en := true.B
+      immSigned                 := io.idInstPort.inst(15, 0).asSInt
+      imm                       := immSigned.asUInt
       io.execPort.destRegAddr   := io.idInstPort.inst(20, 16)
       instValid                 := Spec.Signal.Valid.inst
     }
